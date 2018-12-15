@@ -154,11 +154,6 @@ July对象的原型是”Object.prototype”也就是说对象的构建方式会
 
 [JavaScript 原型概念深入理解](http://developer.51cto.com/art/201511/496178.htm)
 
-[JS深入理解继承结构](http://www.108js.com/article/article1/10345.html?id=2535)
-
-[javascript探索者](http://www.108js.com/)
-
-[张鑫旭](http://www.zhangxinxu.com/wordpress/)
 
 
 
