@@ -41,7 +41,28 @@ Firefox和Chrome中提供了`__proto__`这个非标准（不是所有浏览器�
 
 2. p.\_proto\_=Person.prototype;，将对象p的 \__proto__ 属性设置为 Person.prototype
 
-3. Person.call(p,"张三",20);调用构造函数Person来初始化p。[关于call/apply使用](http://www.108js.com/article/article1/10325.html?id=2246 'call/apply方法的使用讲解')
+3. Person.call(p,"张三",20);调用构造函数Person来初始化p
+code
+```javascript
+function objectFactory() {
+
+    var obj = new Object(),
+
+    Constructor = [].shift.call(arguments);
+
+    obj.__proto__ = Constructor.prototype;
+
+    var ret = Constructor.apply(obj, arguments);
+
+    return typeof ret === 'object' ? ret : obj;
+
+};
+```
+
+作者：冴羽
+链接：https://juejin.im/post/590a99015c497d005852cf26
+来源：掘金
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
                        
 
 ##初识Object##
