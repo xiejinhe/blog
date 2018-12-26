@@ -1,4 +1,4 @@
-#JS原型、原型链深入理解
+# JS原型、原型链深入理解
 
 > 目录
 
@@ -9,6 +9,7 @@
 * 初识Function
 * "prototype"和"\__proto__"混淆分析
 * 原型链
+* 趁热打铁
 * 总结及相关推荐
 
 原型是JavaScript中一个比较难理解的概念，原型相关的属性也比较多，对象有”[[prototype]]”属性，函数对象有”prototype”属性，原型对象有”constructor”属性。
@@ -57,6 +58,7 @@ function objectFactory() {
     return typeof ret === 'object' ? ret : obj;
 
 };
+var person = objectFactory(Otaku, 'Kevin', '18');
 ```
 
 作者：冴羽
@@ -160,7 +162,7 @@ July对象的原型是”Object.prototype”也就是说对象的构建方式会
 
 ##**综图所述**##
 ---
-所有的对象都有`__proto__`属性，该属性对应该对象的原型
+所有的对象都有`__proto__`属性，该属性对应该对象的原型(实例的__proto__属性（原型）等于其构造函数的prototype属性)
 
 所有的函数对象都有`prototype`属性，该属性的值会被赋值给该函数创建的对象的`_proto_`属性
 
@@ -170,6 +172,143 @@ July对象的原型是”Object.prototype”也就是说对象的构建方式会
 
 ---
 
+## 2018年12月腾讯xxx一面面试题（原型链相关）
+> 面试题
+1. `有一个类如下`
+```javascript
+function Person(name) {
+    this.name = name
+}
+let p = new Person('Tom');
+
+```
+* p.__proto__分别等于？ 答： Person.prototype
+* Person.__proto__等于什么? 答： Function.prototype
+
+解析：`实例的__proto__属性（原型）等于其构造函数的prototype属性。实例p的构造函数为Person，而Person的构造函数为Function`
+
+---
+
+
+2. `有一个类如下`
+```javascript
+var foo = {},
+    F = function(){};
+Object.prototype.a = 'value a';
+Function.prototype.b = 'value b';
+
+console.log(foo.a)   //'value a'
+console.log(foo.b)   // undefined
+console.log(F.a)     // value a
+console.log(F.b)     // value b
+```
+
+解析：`Function.prototpye.__proto__ 指向Object.prototype`
+
+---
+
+3. `typeof和instanceof的区别`
+
+    typeof ：在javascript中，判断一个变量的类型常常会用typeof运算符，在使用typeof运算符时采用引用类型存储会出现一个问题，无论引用的是什么类型的对象，都返回"object"
+
+    instanceof ：运算符用来测试一个对象在其原型链中是否存在一个构造函数的prototype属性。（obejct instanseof constructor） instanceof表示的就是一种继承关系，或者原型链的结构。
+    ```javascript
+    function Person (name){
+        this.name = name || 'haha';
+        this.getName = function () {
+            return this.name;
+        }
+    }
+    function SubPerson(name) {
+        
+    }
+    SubPerson.prototype = Person.prototype;
+    SubPerson.prototype.constructor = SubPerson;
+    var sub = new SubPerson('北京');
+    // true
+    sub instanceof SubPerson; 
+    // true
+    sub instanceof Person;
+    // true sub.__proto__.constructor.__proto__ === Function.prototype
+    SubPerson instanceof Function;
+    // true Function.prototype.__proto__ === Object.prototype
+    SubPerson instanceof Object; 
+    ```
+---
+
+4. `new和instanceof的内部机制`
+
+    > new ：
+        >> 1. 创建一个新对象，同时继承对象类的原型，即Person.prototype;
+        >> 2. 执行对象类的构造函数，同时该实例的属性和方法被this所引用，即this指向新构造的实例
+        >> 3. 如果构造函数ruturn一个新"对象"，那么这个对象就会取代整个new出来的结果。
+        如果构造函数没有return对象，那么就会返回步骤1所创建的对象，即隐式返回this。
+    ```javascript
+        let p = (function () {
+            let obj = {};
+            obj.__proto__ = Person.prototype;
+            // 其他赋值语句
+            return obj
+        })
+    ```
+
+    > instanceof ： x instanceof y内部实现如下
+    ```javascript
+    var flag = false;
+    while(x.__proto__ !== null) {
+        if(x.__proto__ === y.prototype){
+            flag = true;
+            break;
+        }
+        x.__proto__ = x.__proto__.__proto__;
+    }
+    if(x.__proto__ == null){ return flag };
+    ```
+    x会一直沿着隐式原型链__proto__向上查找到x.__proto__.__proto__...... = y.prototype为止，
+    如果找到则返回true，则x是y的一个实例，否则反之。
+
+---
+
+5. `说出以下代码输出结果`
+    ```javascript
+    function F() {}
+    function O() {}
+
+    O.prototype = new F();
+    var o = new O();
+    var f = new F();
+
+    // true
+    console.log(o instanceof O);
+    // true
+    console.log(o instanceof F);
+    // true
+    console.log(o.__proto__ === O.prototype);
+    // true
+    console.log(f.__proto__ === F.prototype);
+    // true 
+    console.log(o.__proto__.__proto__ === F.prototype);
+
+    ```
+    
+---
+
+6. `和上面一题有些变化，改变O的原型在后面`
+
+    ```javascript
+    function F() {}
+    function O() {}
+
+    var obj = new O();
+    O.prototype = new F();
+
+    console.log(obj instanceof O); // false
+    console.log(obj instanceof F); // false
+    console.log(obj.__proto__ === O.prototype); // false
+    console.log(obj.__proto__.__proto__ === F.prototype); // false
+    // Object.getPrototypeOf(O) === Function.prototye   //true
+    Object.getPrototypeOf 获取对象的原型
+    ```
 
 ##__相关推荐__
 
