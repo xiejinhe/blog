@@ -231,7 +231,7 @@ console.log(F.b)     // value b
     sub instanceof Person;
     // true sub.__proto__.constructor.__proto__ === Function.prototype
     SubPerson instanceof Function;
-    // true Function.prototype.__proto__ === Object.prototype
+    // true Function.prototype.__proto__ === Object.prototype
     SubPerson instanceof Object; 
     ```
 ---
