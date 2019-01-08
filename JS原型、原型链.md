@@ -324,7 +324,6 @@ console.log(F.b)     // value b
 ##__相关推荐__
 
 [JavaScript 原型概念深入理解](http://developer.51cto.com/art/201511/496178.htm)
-<iframe height="500"  width="500" src="https://codepen.io/xiejinhe/pen/MZXPPE"></iframe>
 
 
 
