@@ -231,7 +231,7 @@ console.log(F.b)     // value b
     sub instanceof Person;
     // true sub.__proto__.constructor.__proto__ === Function.prototype
     SubPerson instanceof Function;
-    // true Function.prototype.__proto__ === Object.prototype
+    // true Function.prototype.__proto__ === Object.prototype
     SubPerson instanceof Object; 
     ```
 ---
@@ -309,6 +309,17 @@ console.log(F.b)     // value b
     // Object.getPrototypeOf(O) === Function.prototye   //true
     Object.getPrototypeOf 获取对象的原型
     ```
+7. `说出如下代码输出`
+ ```javascript
+    var F = function () {};
+    Object.prototype.a = () => {console.log(1)};
+    Function.prototype.b = () => {console.log(2)};
+    var f = new F();
+    f.a(); //1
+    f.b(); //f.b is not a function
+    F.a(); //1
+    F.b(); //2
+ ```
 
 ##__相关推荐__
 
