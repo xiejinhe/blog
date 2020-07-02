@@ -1,0 +1,86 @@
+记一个面试题引发的思考
+前两天群里分享了一个面试题如下：
+let foo = function(){
+  console.log(1)
+} 
+(function foo(){
+  foo = 10;
+  console.log(foo); 
+}());
+console.log(foo); 复制代码
+不知道你第一次想到的答案对不对呢？
+
+输出结果为：
+
+f foo(){
+  foo = 10;
+  console.log(foo);
+}
+1
+undefined复制代码
+我们从后往前说这样可能更好理解一点
+
+首先undefined对应的是console.log(foo);
+
+之所以是undefined是因为下图所示位置
+
+
+
+没有分号导致后边的()把前边的匿名函数执行了，而如果函数没有返回值的话，默认返回undefined,然后undefined被赋给了let声明的变量foo，基于此，也就理解了为什么1会被打印出来。
+
+接下来就讲到了重头戏，也就是自执行函数中的console.log(foo)为什么打印出来是函数体而不是10呢？
+
+而在讲解这一部分之前，我们先看这样一段代码：
+
+let myBar = function bar(){
+  bar = 20;
+  console.log('bar',bar);
+  console.log('myBar',myBar);
+}
+myBar();
+console.log(myBar);
+console.log(bar);
+复制代码
+猜猜这段代码会输出什么呢？结果如下：
+
+bar ƒ bar(){
+  bar = 20;
+  console.log('bar',bar);
+  console.log('myBar',myBar);
+}
+myBar ƒ bar(){
+  bar = 20;
+  console.log('bar',bar);
+  console.log('myBar',myBar);
+}
+ƒ bar(){
+  bar = 20;
+  console.log('bar',bar);
+  console.log('myBar',myBar);
+}
+Uncaught ReferenceError: bar is not defined
+复制代码
+不难看出，bar内部可以访问到bar和myBar,但是外面是访问不到bar的，而且bar内部对bar的重新赋值也是没有生效的。
+
+由此我们得到结论，函数表达式声明的函数，函数外部是无法访问的，而在函数内部是只读的，在非严格模式下，函数内部的赋值静默失败，而在严格模式下会报错
+
+Uncaught TypeError: Assignment to Constant variable复制代码
+接下来我们再延伸一下，请看如下代码：
+
+let foo = function(){console.log(1)}
+(function(){
+  foo = 10;
+  console.log(foo);
+}());
+复制代码
+这段代码运行会输出什么呢？结果报错如下：
+
+Uncaught ReferenceError: foo is not defined
+复制代码
+有疑问的朋友可能会问，怎么是not defined呢，明明我在自执行函数里边有声明啊？
+
+这是因为用let声明的变量，不存在变量提升。而且要求必须 等let声明语句执行完之后，变量才能使用，不然会报Uncaught ReferenceError错误。
+
+ES6 明确规定，如果区块中存在let和const命令，这个区块对这些命令声明的变量，从一开始就形成了封闭作用域。凡是在声明之前就使用这些变量，就会报错。总之，在代码块内，使用let命令声明变量之前，该变量都是不可用的。这在语法上，称为“暂时性死区”（temporal dead zone，简称 TDZ）。作为参数的自执行函数先执行，而此时foo处于暂时性死区，所以报错了。
+
+如果有错误或者不严谨的地方，请给予指正，十分感谢！
